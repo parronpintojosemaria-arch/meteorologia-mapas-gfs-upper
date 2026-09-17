@@ -50,19 +50,15 @@ jobs:
           python -m py_compile scripts/vnext_gfs_preflight.py
           python -m py_compile scripts/vnext_current_guard.py
 
-      - name: Elegir ciclo GFS completo +384 h
-        working-directory: backend
-        run: python scripts/vnext_gfs_generate.py prepare
-
       - id: cycle
-        name: Exportar ciclo
-        working-directory: backend
+        name: Sincronizar ciclo con GFS surface
         shell: bash
         run: |
-          CYCLE=$(python -c "import json;print(json.load(open('vnext-full-out/gfs/prep.json'))['cycle'])")
+          set -euo pipefail
+          CYCLE=$(python -c "import json, urllib.request as u; d=json.load(u.urlopen('https://parronpintojosemaria-arch.github.io/meteorologia-mapas-gfs-surface/current.json', timeout=30)); assert d.get('status') == 'ready', d; assert d.get('model') == 'gfs-surface', d; assert int(d.get('file_count', 0)) == 2058, d; c=d.get('cycle'); assert isinstance(c, str) and c, d; print(c)")
           echo "cycle=$CYCLE" >> "$GITHUB_OUTPUT"
           echo "CYCLE=$CYCLE" >> "$GITHUB_ENV"
-          echo "GFS upper ciclo seleccionado: $CYCLE"
+          echo "GFS upper sincronizado con surface: $CYCLE"
 
       - name: Generar 1.548 mapas upper · España 2400 · Europa 2800 · q92
         working-directory: backend
@@ -85,6 +81,7 @@ jobs:
           assert d['group']=='upper'
           assert d['expected_count']==1548
           assert len(d['files'])==1548
+          assert d['cycle']==cycle
           widths={'spain':2400,'europe':2800}
           total=0
           for row in d['files']:
@@ -103,7 +100,7 @@ jobs:
           manifest['publication_role']='gfs-upper-shard'
           manifest['production_changed']=False
           (root/'manifest.json').write_text(json.dumps(manifest,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
-          print(f'GFS UPPER SHARD OK · 1548 mapas · {mib:.2f} MiB')
+          print(f'GFS UPPER SHARD OK · 1548 mapas · {mib:.2f} MiB · ciclo {cycle}')
           PY
 
       - name: Preparar sitio candidato
