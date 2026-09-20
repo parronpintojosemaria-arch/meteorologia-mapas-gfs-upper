@@ -5,10 +5,8 @@ name: vNext · Candidato Pages · GFS upper · 1.548 mapas
 on:
   schedule:
     - cron: '30 8 * * *'
+    - cron: '30 20 * * *'
   workflow_dispatch:
-  push:
-    paths:
-      - '.github/workflows/vnext-publish-candidate.yml'
 
 permissions:
   contents: read
