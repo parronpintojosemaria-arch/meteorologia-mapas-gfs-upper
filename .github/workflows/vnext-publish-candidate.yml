@@ -2,6 +2,8 @@ name: vNext · Candidato Pages · GFS upper · 1.548 mapas
 
 # visual-2: paletas HD profesionales · 2026-09-18
 on:
+  schedule:
+    - cron: '30 8 * * *'
   workflow_dispatch:
   push:
     paths:
