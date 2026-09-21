@@ -7,9 +7,6 @@ on:
     - cron: '30 11 * * *'
     - cron: '30 23 * * *'
   workflow_dispatch:
-  push:
-    paths:
-      - 'TRIGGER-GFS-SYNC.txt'
 
 permissions:
   contents: read
